@@ -10,6 +10,7 @@ const KEY = '33185043-dc389dc3b605958bff2737f65';
 class App extends Component {
   state = {
     galleryItems: [],
+    totalItems: 0,
     pages: 0,
     currentInput: '',
     isLoading: false,
@@ -20,7 +21,6 @@ class App extends Component {
 
   fetchPictures = async url => {
     const pictures = await fetch(url);
-
     const picturesJson = await pictures.json();
     return picturesJson.hits;
   };
@@ -30,18 +30,22 @@ class App extends Component {
 
     this.setState({
       isLoading: true,
+      totalItems: 0,
     });
 
     const page = 1;
     const input = event.target[1]['value'];
     const URL = `https://pixabay.com/api/?q=${input}&page=${page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`;
     const pictures = await this.fetchPictures(URL);
-    console.log(pictures);
+    const query = await fetch(URL);
+    const queryJson = await query.json();
+
     this.setState({
       galleryItems: pictures,
       currentInput: input,
       pages: page,
       isLoading: false,
+      totalItems: queryJson.totalHits,
     });
   };
 
@@ -56,7 +60,7 @@ class App extends Component {
 
     const URL = `https://pixabay.com/api/?q=${input}&page=${page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`;
     const newPictures = await this.fetchPictures(URL);
-    console.log(newPictures);
+
     this.setState({
       galleryItems: [...prevGalleryItems, ...newPictures],
       pages: page,
@@ -70,7 +74,6 @@ class App extends Component {
     const pictureObject = this.state.galleryItems.find(
       element => element.id === Number(id)
     );
-    console.log(pictureObject);
 
     this.setState({
       isModalShown: true,
@@ -100,9 +103,10 @@ class App extends Component {
       modalImageSource,
       modalAlt,
       isLoading,
+      totalItems,
     } = this.state;
     const isGalleryItemsShown = galleryItems['length'] === 0 ? false : true;
-
+    console.log(totalItems);
     return (
       <>
         {isModalShown ? (
@@ -117,15 +121,15 @@ class App extends Component {
         )}
         <Searchbar handleSubmit={this.handleSubmit} />
 
-        {isLoading ? (
-          <Loader isLoading={isLoading} />
+        {isLoading && <Loader isLoading={isLoading} /> ? (
+          <ImageGallery galleryItems={galleryItems} />
         ) : (
           <ImageGallery
             galleryItems={galleryItems}
             handleImageClick={this.handleImageClick}
           />
         )}
-        {isGalleryItemsShown ? (
+        {isGalleryItemsShown && totalItems > galleryItems.length ? (
           <Button handleLoadMore={this.handleLoadMore} />
         ) : (
           <></>
