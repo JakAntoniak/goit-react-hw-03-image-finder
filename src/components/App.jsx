@@ -109,26 +109,20 @@ class App extends Component {
     console.log(totalItems);
     return (
       <>
-        {isModalShown ? (
+        {isModalShown && (
           <Modal
             src={modalImageSource}
             alt={modalAlt}
             handleClose={this.handleClose}
             handleEscClose={this.handleEscClose}
           />
-        ) : (
-          <></>
         )}
         <Searchbar handleSubmit={this.handleSubmit} />
-
-        {isLoading && <Loader isLoading={isLoading} /> ? (
-          <ImageGallery galleryItems={galleryItems} />
-        ) : (
-          <ImageGallery
-            galleryItems={galleryItems}
-            handleImageClick={this.handleImageClick}
-          />
-        )}
+        {isLoading && <Loader isLoading={isLoading} />}
+        <ImageGallery
+          galleryItems={galleryItems}
+          handleImageClick={this.handleImageClick}
+        />
         {isGalleryItemsShown && totalItems > galleryItems.length ? (
           <Button handleLoadMore={this.handleLoadMore} />
         ) : (
@@ -136,6 +130,8 @@ class App extends Component {
         )}
       </>
     );
+    {
+    }
   }
 }
 
